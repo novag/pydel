@@ -22,12 +22,11 @@ exceptions might be raised.
 ### Authenticating
 
 The Pydel class is used to communicate with the Jodel API. Its constructor takes 7 arguments:
- - device_uid: A 64 character string consisting of numbers and lowercase numbers. The device UID is your "username", used to identify you.
  - city: The name of the city you are Jodling from
  - country code: The [country code](https://en.wikipedia.org/wiki/Country_code) for the country you are Jodling from
- - loc_name: The name of the location you are Jodling from. This does not seem to be used by Jodel in any way.
  - lat: Latitude of the location you're Jodling from
  - lng: Longitude of the location you're Jodling from
+ - device_uid: A 64 character string consisting of numbers and lowercase numbers. The device UID is your "username", used to identify you.
  - (optional) user_agent_string: The user agent string you want to use. Default is "Jodel/65000 Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)"
 
 ```
@@ -37,7 +36,7 @@ from pydel.utils import random_device_uid
 
 uid = random_device_uid()
 
-p = Pydel(device_uid=device_uid, city='Trondheim', country_code='NO', loc_name='Strindvegen', lat=60.0, lng=10.0, user_agent_string='Jodel/65000 Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)')
+p = Pydel(city='Trondheim', country_code='NO', lat=60.0, lng=10.0, device_uid=device_uid, user_agent_string='Jodel/65000 Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)')
 p.authenticate()  # Authenticate with the server
 ```
 

@@ -11,13 +11,18 @@ BASE_API_URL = 'https://api.go-tellm.com/'
 
 
 class Pydel:
-    def __init__(self, city, country_code, lat, lng, loc_name, device_uid=None, user_agent_string=DEFAULT_USER_AGENT_STRING, debug=False):
+    def __init__(self, city, country_code, lat, lng, device_uid=None, user_agent_string=DEFAULT_USER_AGENT_STRING, debug=False):
+        self._location = {
+            'city': city,
+            'country': country_code,
+            'loc_accuracy': utils.random_loc_accuracy(),
+            'loc_coordinates': {
+                'lat': lat,
+                'lng': lng
+            },
+            'name': city
+        }
         self._device_uid = device_uid
-        self._city = city
-        self._country_code = country_code
-        self._lat = lat
-        self._lng = lng
-        self._loc_name = loc_name
         self._user_agent_string = user_agent_string
         self._debug = debug
 
@@ -50,18 +55,12 @@ class Pydel:
         else:
             raise UnexpectedResponseCodeException("Server responded with {}".format(req.status_code))
 
-    def _post_jodel(self, color, city, country_code, loc_accuracy, lat, lng, loc_name, message):
+    def _post_jodel(self, color, message):
         """
         Posts a new Jodel.
 
         Args:
             color: Post color, hexadecimal without leading #. Can be FF9908 (orange), FFBA00 (yellow), DD5F5F (red), 06A3CB (blue), 8ABDB0 (bluegreyish), 9EC41C (green)
-            city: City name
-            country_code: 2 or 3 capital letter country code
-            loc_accuracy: Location accuracy
-            lat: Latitude of position to post from
-            lng: Longitude of position to post from
-            loc_name: Human-friendly name of position to post from
             message: Content of the post
         
         Returns:
@@ -74,30 +73,15 @@ class Pydel:
         return self._authenticated_request(method='POST', url='api/v2/posts',
                                            json_data={
                                                'color': color,
-                                               'location': {
-                                                   'city': city,
-                                                   'country': country_code,
-                                                   'loc_accuracy': loc_accuracy,
-                                                   'loc_coordinates': {
-                                                       'lat': lat,
-                                                       'lng': lng
-                                                   },
-                                                   'name': loc_name
-                                               },
+                                               'location': self._location,
                                                'message': message})
 
-    def _reply_to_post_id(self, color, city, country_code, loc_accuracy, lat, lng, loc_name, message, post_id):
+    def _reply_to_post_id(self, color, message, post_id):
         """
         Posts a reply to a Jodel.
 
         Args:
             color: Post color, hexadecimal without leading #. Can be FF9908 (orange), FFBA00 (yellow), DD5F5F (red), 06A3CB (blue), 8ABDB0 (bluegreyish), 9EC41C (green)
-            city: City name
-            country_code: 2 or 3 capital letter country code
-            loc_accuracy: Location accuracy
-            lat: Latitude of position to post from
-            lng: Longtitude of position to post from
-            loc_name: Human-friendly name of position to post from
             message: Content of the post
             post_id: Id of the post to reply to
         
@@ -112,16 +96,7 @@ class Pydel:
                                            json_data={
                                                'ancestor': post_id,
                                                'color': color,
-                                               'location': {
-                                                   'city': city,
-                                                   'country': country_code,
-                                                   'loc_accuracy': loc_accuracy,
-                                                   'loc_coordinates': {
-                                                       'lat': lat,
-                                                       'lng': lng
-                                                   },
-                                                   'name': loc_name
-                                               },
+                                               'location': self._location,
                                                'message': message})
 
     def _delete_post_id(self, post_id):
@@ -167,15 +142,7 @@ class Pydel:
                                      'Content-Type': 'application/json; charset=UTF-8'},
                             json={'client_id': '81e8a76e-1e02-4d17-9ba0-8a7020261b26',
                                   'device_uid': self._device_uid,
-                                  'location': {
-                                      'city': self._city,
-                                      'country': self._country_code,
-                                      'loc_accuracy': utils.random_loc_accuracy(),
-                                      'loc_coordinates': {
-                                          'lat': self._lat,
-                                          'lng': self._lng
-                                      }
-                                  }}
+                                  'location': self._location}
                             )
 
         if self._debug:
@@ -193,6 +160,53 @@ class Pydel:
 
         else:
             raise AuthenticationError("Server returned {}".format(req.status_code))
+
+    def set_location(self, city=None, lat=None, lng=None, country_code=None, loc_name=None, loc_accuracy=None, force=False):
+        """
+        Sets the current location.
+
+        Args:
+            city: City name
+            lat: Latitude of position to post from
+            lng: Longitude of position to post from
+            country_code: 2 or 3 capital letter country code
+            loc_name: Human-friendly name of position to post from
+            loc_accuracy: Location accuracy
+
+        Returns:
+            True if location modified, False if not
+        """
+        modified = False
+
+        if city and city != self._location['city']:
+            self._location['city'] = city
+            modified = True
+
+        if lat and lat != self._location['loc_coordinates']['lat']:
+            self._location['loc_coordinates']['lat'] = lat
+            modified = True
+
+        if lng and lng != self._location['loc_coordinates']['lng']:
+            self._location['loc_coordinates']['lng'] = lng
+            modified = True
+
+        if country_code and country_code != self._location['country']:
+            self._location['country'] = country_code
+            modified = True
+
+        if loc_name and loc_name != self._location['name']:
+            self._location['name'] = loc_name
+            modified = True
+
+        if loc_accuracy and loc_accuracy != self._location['loc_accuracy']:
+            self._location['loc_accuracy'] = loc_accuracy
+            modified = True
+
+        if modified or force:
+            self._authenticated_request(method='PUT', url='api/v2/users/location', json_data={'location': self._location}).text
+            modified = True
+
+        return modified
 
     def get_karma(self):
         """
@@ -333,9 +347,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._post_jodel(color=color, city=self._city, country_code=self._country_code,
-                                                   loc_accuracy=utils.random_loc_accuracy(), lat=self._lat, lng=self._lng,
-                                                   loc_name=self._loc_name, message=message).json()['posts'], self)
+        return generate_post_list(self._post_jodel(color=color, message=message).json()['posts'], self)
 
     def reply_to_jodel(self, message, jodel):
         """
@@ -352,11 +364,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._reply_to_post_id(color=jodel.color, city=self._city, country_code=self._country_code,
-                                                         loc_accuracy=utils.random_loc_accuracy(), lat=self._lat,
-                                                         lng=self._lng,
-                                                         loc_name=self._loc_name, message=message,
-                                                         post_id=jodel.post_id).json(), self)
+        return generate_post_list(self._reply_to_post_id(color=jodel.color, message=message, post_id=jodel.post_id).json(), self)
 
     def delete_post(self, post):
         """

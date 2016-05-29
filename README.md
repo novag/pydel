@@ -88,14 +88,20 @@ print(pydel.colors.ORANGE)  # FF9908
 A Post instance has methods upvote(), downvote() and reply(message). These behave just like the Pydel methods
 described above. In addition, it has the following properties:
  - voted (str): "up"/"down" if the user fetching the post has voted on the post. None if the user has not voted.
+ - vote_count (int): Signed integer indicating how many votes the post has.
  - has_replies (bool): True if the post has replies, False if it does not.
  - reply_from_op (bool): True if the post was made by someone replying to their own thread.
  - replies (list): List of Post objects representing the replies to this post. Empty list if there are no replies.
  - reply_count (int): The number of replies to this post.
+ - is_image (bool): True if the post contains an image, False if it does not.
+ - image_url (str): None if the post doesn't contain an image, AWS url if it does.
+ - thumbnail_url (str): None if the post doesn't contain an image, AWS url if it does.
  - created_at (datetime): Time the post was created.
  - updated_at (datetime): Time the post was last updated (seems to always be the same as created_at).
  - own_post (boolean): True if the post was written by the user who fetched it, False if it was not.
+ - distance (int): Euclidean post distance in kilometers (very_close: 0..1, close: 2..10, city_name: 11+).
  - location (dict): Dictionary mapping 'lat', 'lng' and 'name' to latitude, longitude and name.
  - message (str): The contents of the post. Empty string it no message is found.
  - color (str): Six character string describing the color of the post. FFFFFF if no color is found.
  - post_id (str): Alphanumeric string identifying the post.
+ - user_handle (str): Alphanumeric string identifying a user in the current thread.

@@ -427,17 +427,23 @@ class Post:
 
     Attributes:
         voted (str): "up"/"down" if the user fetching the post has voted on the post. None if the user has not voted.
+        vote_count (int): Signed integer indicating how many votes the post has.
         has_replies (bool): True if the post has replies, False if it does not.
         reply_from_op (bool): True if the post was made by someone replying to their own thread.
         replies (list): List of Post objects representing the replies to this post. Empty list if there are no replies.
         reply_count (int): The number of replies to this post.
+        is_image (bool): True if the post contains an image, False if it does not.
+        image_url (str): None if the post doesn't contain an image, AWS url if it does.
+        thumbnail_url (str): None if the post doesn't contain an image, AWS url if it does.
         created_at (datetime): Time the post was created.
         updated_at (datetime): Time the post was last updated (seems to always be the same as created_at).
         own_post (boolean): True if the post was written by the user who fetched it, False if it was not.
+        distance (int): Euclidean post distance in kilometers (very_close: 0..1, close: 2..10, city_name: 11+).
         location (dict): Dictionary mapping 'lat', 'lng' and 'name' to latitude, longitude and name.
         message (str): The contents of the post. Empty string it no message is found.
         color (str): Six character hex describing the color of the post. FFFFFF if no color is found.
         post_id (str): Alphanumeric string identifying the post.
+        user_handle (str): Alphanumeric string identifying a user in the current thread.
     """
     def __init__(self, json_dict, pydel_instance=None):
         """
@@ -540,6 +546,10 @@ class Post:
             return None
 
     @property
+    def vote_count(self):
+        return self._json_dict['vote_count']
+
+    @property
     def has_replies(self):
         return 'child_count' in self._json_dict and self._json_dict['child_count'] != 0
 
@@ -565,6 +575,24 @@ class Post:
             return 0
 
     @property
+    def is_image(self):
+        return 'image_url' in self._json_dict
+
+    @property
+    def image_url(self):
+        if 'image_url' in self._json_dict:
+            return 'http:' + self._json_dict['image_url']
+        else:
+            return None
+
+    @property
+    def thumbnail_url(self):
+        if 'thumbnail_url' in self._json_dict:
+            return 'http:' + self._json_dict['thumbnail_url']
+        else:
+            return None
+
+    @property
     def created_at(self):
         return utils.iso8601_to_datetime(self._json_dict['created_at'])
 
@@ -575,6 +603,10 @@ class Post:
     @property
     def own_post(self):
         return self._json_dict['post_own'] == 'own'
+
+    @property
+    def distance(self):
+        return self._json_dict['distance']
 
     @property
     def location(self):
@@ -589,7 +621,6 @@ class Post:
     def message(self):
         if 'message' in self._json_dict:
             return self._json_dict['message']
-
         else:
             return ''
 
@@ -603,6 +634,10 @@ class Post:
     @property
     def post_id(self):
         return self._json_dict['post_id']
+
+    @property
+    def user_handle(self):
+        return self._json_dict['user_handle']
 
     def __getattr__(self, key):
         if key in self._json_dict:

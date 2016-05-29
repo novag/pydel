@@ -324,7 +324,7 @@ class Pydel:
         """
         return generate_post_list(self._post_jodel(color=color, city=self._city, country_code=self._country_code,
                                                    loc_accuracy=utils.random_loc_accuracy(), lat=self._lat, lng=self._lng,
-                                                   loc_name=self._loc_name, message=message).json(), self)
+                                                   loc_name=self._loc_name, message=message).json()['posts'], self)
 
     def reply_to_jodel(self, message, jodel):
         """

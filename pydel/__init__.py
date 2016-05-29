@@ -10,7 +10,7 @@ BASE_API_URL = 'https://api.go-tellm.com/'
 
 
 class Pydel:
-    def __init__(self, device_uid, city, country_code, lat, lng, loc_name, user_agent_string=DEFAULT_USER_AGENT_STRING):
+    def __init__(self, city, country_code, lat, lng, loc_name, device_uid=None, user_agent_string=DEFAULT_USER_AGENT_STRING):
         self._device_uid = device_uid
         self._city = city
         self._country_code = country_code
@@ -142,6 +142,10 @@ class Pydel:
 
     def get_device_uid(self):
         return self._device_uid
+
+    def set_token(self, access_token):
+        self._access_token = access_token
+        return True
 
     def authenticate(self):
         """

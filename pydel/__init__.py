@@ -331,6 +331,22 @@ class Pydel:
         return generate_post_list(
             self._authenticated_request(method='GET', url='api/v2/posts/location/discussed').json()['posts'], self)
 
+    def get_post(self, post_id):
+        """
+        Returns a specific Jodel post.
+
+        Args:
+            post_id: Alphanumeric string identifying the post
+
+        Returns:
+            Post object.
+
+        Raises:
+            AuthenticationError: An attempt to replace an outdated auth token failed.
+            UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
+        """
+        return Post(self._authenticated_request(method='GET', url='api/v2/posts/{}'.format(post_id)).json(), self)
+
     def new_post(self, color, message):
         """
         Posts a new Jodel, using current position and a randomized location accuracy.

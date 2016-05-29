@@ -1,16 +1,17 @@
-import requests
-import time
 from pydel_exceptions import (AuthenticationError, UnexpectedResponseCodeException, InvalidPostException,
                               NoPydelInstanceException, UnauthorizedDeletionException, UnauthenticatedException)
-import utils
 import colors
+import utils
+
+import requests
+import time
 
 DEFAULT_USER_AGENT_STRING = 'Jodel/65000 Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)'
 BASE_API_URL = 'https://api.go-tellm.com/'
 
 
 class Pydel:
-    def __init__(self, city, country_code, lat, lng, loc_name, device_uid=None, user_agent_string=DEFAULT_USER_AGENT_STRING):
+    def __init__(self, city, country_code, lat, lng, loc_name, device_uid=None, user_agent_string=DEFAULT_USER_AGENT_STRING, debug=False):
         self._device_uid = device_uid
         self._city = city
         self._country_code = country_code
@@ -18,6 +19,7 @@ class Pydel:
         self._lng = lng
         self._loc_name = loc_name
         self._user_agent_string = user_agent_string
+        self._debug = debug
 
         self._access_token = None
         self._distinct_id = None
@@ -30,19 +32,21 @@ class Pydel:
                 'Accept-Encoding': 'gzip'
                 }
 
-    def _authenticated_request(self, method, url, json=None, data=None):
+    def _authenticated_request(self, method, url, json_data=None, data=None):
         if self._access_token is None:
             raise UnauthenticatedException()
 
         if self._expiration_date is not None and self._expiration_date < time.time():  # Our access token has expired
             self.authenticate()
 
-        req = requests.request(method=method, url=BASE_API_URL + url, headers=self._generate_headers(), json=json,
+        req = requests.request(method=method, url=BASE_API_URL + url, headers=self._generate_headers(), json=json_data,
                                data=data)
+
+        if self._debug:
+            print("_authenticated_request: " + req.text)
 
         if req.status_code == requests.codes.ok or req.status_code == requests.codes.no_content:
             return req
-
         else:
             raise UnexpectedResponseCodeException("Server responded with {}".format(req.status_code))
 
@@ -68,7 +72,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return self._authenticated_request(method='POST', url='api/v2/posts',
-                                           json={
+                                           json_data={
                                                'color': color,
                                                'location': {
                                                    'city': city,
@@ -105,7 +109,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return self._authenticated_request(method='POST', url='api/v2/posts',
-                                           json={
+                                           json_data={
                                                'ancestor': post_id,
                                                'color': color,
                                                'location': {
@@ -173,6 +177,9 @@ class Pydel:
                                       }
                                   }}
                             )
+
+        if self._debug:
+            print("authenticate: " + req.text)
 
         if req.status_code == requests.codes.ok:
             self._access_token = req.json()['access_token']

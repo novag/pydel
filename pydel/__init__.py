@@ -55,14 +55,14 @@ class Pydel:
         else:
             raise UnexpectedResponseCodeException("Server responded with {}".format(req.status_code))
 
-    def _post_jodel(self, color, message):
+    def _new_post(self, color, message):
         """
         Posts a new Jodel.
 
         Args:
             color: Post color, hexadecimal without leading #. Can be FF9908 (orange), FFBA00 (yellow), DD5F5F (red), 06A3CB (blue), 8ABDB0 (bluegreyish), 9EC41C (green)
             message: Content of the post
-        
+
         Returns:
             Request object
 
@@ -84,7 +84,7 @@ class Pydel:
             color: Post color, hexadecimal without leading #. Can be FF9908 (orange), FFBA00 (yellow), DD5F5F (red), 06A3CB (blue), 8ABDB0 (bluegreyish), 9EC41C (green)
             message: Content of the post
             post_id: Id of the post to reply to
-        
+
         Returns:
             Request object
 
@@ -129,7 +129,7 @@ class Pydel:
     def authenticate(self):
         """
         Authenticates with the Jodel server, then sleeps for 5 seconds.
-        
+
         Returns:
             True on success.
 
@@ -211,7 +211,7 @@ class Pydel:
     def get_karma(self):
         """
         Returns karma for the currently logged in user.
-        
+
         Returns:
             Karma as an integer.
 
@@ -221,23 +221,10 @@ class Pydel:
         """
         return int(self._authenticated_request(method='GET', url='/api/v2/users/karma').json()['karma'])
 
-    def get_home(self):
-        """
-        Returns newest post near the current position.
-        
-        Returns:
-            list of Post objects.
-
-        Raises:
-            AuthenticationError: An attempt to replace an outdated auth token failed.
-            UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
-        """
-        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/').json()['posts'], self)
-
-    def get_my_jodels(self):
+    def get_my_recent_posts(self):
         """
         Returns the posts of the currently logged in user.
-        
+
         Returns:
             list of Post objects.
 
@@ -245,13 +232,40 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/mine/').json()['posts'],
-                                  self)
+        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/mine/').json()['posts'], self)
+
+    def get_my_popular_posts(self):
+        """
+        Returns the highest voted posts of the currently logged in user.
+
+        Returns:
+            list of Post objects.
+
+        Raises:
+            AuthenticationError: An attempt to replace an outdated auth token failed.
+            UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
+        """
+        return generate_post_list(
+            self._authenticated_request(method='GET', url='api/v2/posts/mine/popular').json()['posts'], self)
+
+    def get_my_discussed_posts(self):
+        """
+        Returns the most commented posts of the currently logged in user.
+
+        Returns:
+            list of Post objects.
+
+        Raises:
+            AuthenticationError: An attempt to replace an outdated auth token failed.
+            UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
+        """
+        return generate_post_list(
+            self._authenticated_request(method='GET', url='api/v2/posts/mine/discussed').json()['posts'], self)
 
     def get_my_replies(self):
         """
         Returns the replies of the currently logged in user.
-        
+
         Returns:
             list of Post objects.
 
@@ -265,7 +279,7 @@ class Pydel:
     def get_my_votes(self):
         """
         Returns posts the currently logged in user has voted on.
-        
+
         Returns:
              list of Post objects.
 
@@ -276,10 +290,10 @@ class Pydel:
         return generate_post_list(
             self._authenticated_request(method='GET', url='api/v2/posts/mine/votes').json()['posts'], self)
 
-    def get_my_top_jodels(self):
+    def get_recent_posts(self):
         """
-        Returns the highest voted posts of the currently logged in user.
-        
+        Returns most recent posts near the current position.
+
         Returns:
             list of Post objects.
 
@@ -287,27 +301,12 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/mine/popular').json()['posts'], self)
+        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/location').json()['posts'], self)
 
-    def get_newest_jodels(self):
-        """
-        Returns newest posts near the current position.
-        
-        Returns:
-            list of Post objects.
-
-        Raises:
-            AuthenticationError: An attempt to replace an outdated auth token failed.
-            UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
-        """
-        return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/location/').json()['posts'], self)
-
-    def get_top_jodels(self):
+    def get_popular_posts(self):
         """
         Returns highest voted posts near the current position.
-        
+
         Returns:
             list of Post objects.
 
@@ -318,10 +317,10 @@ class Pydel:
         return generate_post_list(
             self._authenticated_request(method='GET', url='api/v2/posts/location/popular').json()['posts'], self)
 
-    def get_most_discussed_jodels(self):
+    def get_discussed_posts(self):
         """
         Returns most commented posts near the current position.
-        
+
         Returns:
             list of Post objects.
 
@@ -332,14 +331,14 @@ class Pydel:
         return generate_post_list(
             self._authenticated_request(method='GET', url='api/v2/posts/location/discussed').json()['posts'], self)
 
-    def post_jodel(self, color, message):
+    def new_post(self, color, message):
         """
         Posts a new Jodel, using current position and a randomized location accuracy.
 
         Args:
             color: Post color, hexadecimal without leading #. Can be FF9908 (orange), FFBA00 (yellow), DD5F5F (red), 06A3CB (blue), 8ABDB0 (bluegreyish), 9EC41C (green)
             message: Content of the post.
-        
+
         Returns:
             List of Post objects containing the newest posts near the current position.
 
@@ -347,16 +346,16 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._post_jodel(color=color, message=message).json()['posts'], self)
+        return generate_post_list(self._new_post(color=color, message=message).json()['posts'], self)
 
-    def reply_to_jodel(self, message, jodel):
+    def new_reply(self, message, post):
         """
         Posts a reply, using current position and a randomized location accuracy.
 
         Args:
             message: Content of the reply.
-            jodel: Post object to reply to.
-        
+            post: Post object to reply to.
+
         Returns:
             List of Post objects containing the newest posts near the current position.
 
@@ -364,7 +363,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._reply_to_post_id(color=jodel.color, message=message, post_id=jodel.post_id).json(), self)
+        return generate_post_list(self._reply_to_post_id(color=post.color, message=message, post_id=post.post_id).json(), self)
 
     def delete_post(self, post):
         """
@@ -372,7 +371,7 @@ class Pydel:
 
         Args:
             post: Post object to delete.
-        
+
         Returns:
             True if the deletion request was successfully sent.
 
@@ -389,7 +388,7 @@ class Pydel:
 
         Args:
             post: Post object to upvote.
-        
+
         Returns:
             False if the currently logged in user has already voted on this post, True if the vote was successful.
 
@@ -410,7 +409,7 @@ class Pydel:
 
         Args:
             post: Post object to downvote.
-        
+
         Returns:
             False if the currently logged in user has already voted on this post, True if the vote was successful.
 
@@ -519,7 +518,7 @@ class Post:
             NoPydelInstanceException: This Post instance was not instantiated with a Pydel instance.
         """
         if self._pydel_instance is not None:
-            return self._pydel_instance.reply_to_jodel(message, self)
+            return self._pydel_instance.new_reply(message, self)
 
         else:
             raise NoPydelInstanceException()

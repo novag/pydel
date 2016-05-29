@@ -45,12 +45,12 @@ Note that authenticate() must be called before doing anything else.
 ### Fetching data
 
 get_karma() will return your karma as an integer value. Pydel also implements several public methods that you can use to
-fetch posts: get_home(), get_my_jodels(), get_my_replies(), get_my_votes(), get_my_top_jodels(), get_newest_jodels(),
-get_top_jodels() and get_most_discussed_jodels(). These will all return a list of Post instances.
+fetch posts: get_my_recent_posts(), get_my_popular_posts(), get_my_discussed_posts(), get_my_replies(), get_my_votes(),
+get_recent_posts(), get_popular_posts() and get_discussed_posts(). These will all return a list of Post instances.
 
 ```
 karma = p.get_karma()  # 42
-top_jodels = p.get_top_jodels()  # [<pydel.Post instance at 0x7f798e7e9c20>, <pydel.Post instance at 0x7f798e7e9b00>, ...]
+top_jodels = p.get_popular_posts()  # [<pydel.Post instance at 0x7f798e7e9c20>, <pydel.Post instance at 0x7f798e7e9b00>, ...]
 ```
 
 ### Sending data
@@ -60,12 +60,12 @@ Pydel supports voting, replying and posting new jodels:
   logged in has already voted on this post, True if the vote request was sent.
  - delete_post(post) attempts to delete the post associated with the given Post instance. Returns True if the request is
  sent without encountering any exceptions.
- - post_jodel(color, message) posts a new Jodel with the given color and message. Please note that the server will
+ - new_post(color, message) posts a new Jodel with the given color and message. Please note that the server will
  discard any non-Jodel colors.
- - reply_to_jodel(message, post) posts a reply containing message as a response to the given post.
+ - new_reply(message, post) posts a reply containing message as a response to the given post.
 
 ```
-p.post_jodel(color=pydel.colors.RED, message="I just love this app!")  # [<pydel.Post instance at 0x7f798e7e9c20>, <pydel.Post instance at 0x7f798e7e9b00>, ...]
+p.new_post(color=pydel.colors.RED, message="I just love this app!")  # [<pydel.Post instance at 0x7f798e7e9c20>, <pydel.Post instance at 0x7f798e7e9b00>, ...]
 ```
 
 ### Colors

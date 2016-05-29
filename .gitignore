@@ -1,0 +1,6 @@
+*.pyc
+
+/build
+/dist
+/pydel.egg-info
+/pydel/__pycache__

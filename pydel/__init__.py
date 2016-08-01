@@ -289,10 +289,15 @@ class Pydel:
         return generate_post_list(
             self._authenticated_request(method='GET', url='api/v2/posts/mine/votes').json()['posts'], self)
 
-    def get_recent_posts(self):
+    def get_recent_posts(self, lat=None, lng=None, limit=30):
         """
         Returns most recent posts near the current position.
 
+        Args:
+            lat: Latitude of position to get posts from
+            lng: Longitude of position to get post from
+            limit: Number of posts to get
+
         Returns:
             list of Post objects.
 
@@ -300,12 +305,21 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/location').json()['posts'], self)
+        params = '?limit=' + str(limit)
+        if (lat and lng):
+            params += '&lat=' + str(lat) + '&lng=' + str(lng)
 
-    def get_popular_posts(self):
+        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/location' + params).json()['posts'], self)
+
+    def get_popular_posts(self, lat=None, lng=None, limit=30):
         """
         Returns highest voted posts near the current position.
 
+        Args:
+            lat: Latitude of position to get posts from
+            lng: Longitude of position to get post from
+            limit: Number of posts to get
+
         Returns:
             list of Post objects.
 
@@ -313,13 +327,22 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/location/popular').json()['posts'], self)
+        params = '?limit=' + str(limit)
+        if (lat and lng):
+            params += '&lat=' + str(lat) + '&lng=' + str(lng)
 
-    def get_discussed_posts(self):
+        return generate_post_list(
+            self._authenticated_request(method='GET', url='api/v2/posts/location/popular' + params).json()['posts'], self)
+
+    def get_discussed_posts(self, lat=None, lng=None, limit=30):
         """
         Returns most commented posts near the current position.
 
+        Args:
+            lat: Latitude of position to get posts from
+            lng: Longitude of position to get post from
+            limit: Number of posts to get
+
         Returns:
             list of Post objects.
 
@@ -327,8 +350,12 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
+        params = '?limit=' + str(limit)
+        if (lat and lng):
+            params += '&lat=' + str(lat) + '&lng=' + str(lng)
+
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/location/discussed').json()['posts'], self)
+            self._authenticated_request(method='GET', url='api/v2/posts/location/discussed' + params).json()['posts'], self)
 
     def get_post(self, post_id):
         """

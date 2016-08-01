@@ -630,14 +630,14 @@ class Post:
     @property
     def image_url(self):
         if 'image_url' in self._json_dict:
-            return 'http:' + self._json_dict['image_url']
+            return self._json_dict['image_url']
         else:
             return None
 
     @property
     def thumbnail_url(self):
         if 'thumbnail_url' in self._json_dict:
-            return 'http:' + self._json_dict['thumbnail_url']
+            return self._json_dict['thumbnail_url']
         else:
             return None
 

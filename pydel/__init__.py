@@ -1,7 +1,6 @@
-from pydel_exceptions import (AuthenticationError, UnexpectedResponseCodeException, InvalidPostException,
-                              NoPydelInstanceException, UnauthorizedDeletionException, UnauthenticatedException)
-import colors
-import utils
+from pydel.pydel_exceptions import (AuthenticationError, UnexpectedResponseCodeException, InvalidPostException,
+        NoPydelInstanceException, UnauthorizedDeletionException, UnauthenticatedException)
+from pydel import colors, utils
 
 import requests
 import time

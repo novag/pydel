@@ -6,7 +6,7 @@ import requests
 import time
 
 DEFAULT_USER_AGENT_STRING = 'Jodel/65000 Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)'
-BASE_API_URL = 'https://api.go-tellm.com/'
+BASE_API_URL = 'https://api.go-tellm.com/api/v2/'
 
 
 class Pydel:
@@ -69,7 +69,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return self._authenticated_request(method='POST', url='api/v2/posts',
+        return self._authenticated_request(method='POST', url='posts',
                                            json_data={
                                                'color': color,
                                                'location': self._location,
@@ -91,7 +91,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return self._authenticated_request(method='POST', url='api/v2/posts',
+        return self._authenticated_request(method='POST', url='posts',
                                            json_data={
                                                'ancestor': post_id,
                                                'color': color,
@@ -99,7 +99,7 @@ class Pydel:
                                                'message': message})
 
     def _delete_post_id(self, post_id):
-        return self._authenticated_request(method='DELETE', url="api/v2/posts/{}".format(post_id))
+        return self._authenticated_request(method='DELETE', url="posts/{}".format(post_id))
 
     def _vote_post_id(self, post_id, direction):
         """
@@ -116,7 +116,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return self._authenticated_request(method='PUT', url="api/v2/posts/{}/{}vote".format(post_id, direction))
+        return self._authenticated_request(method='PUT', url="posts/{}/{}vote".format(post_id, direction))
 
     def get_device_uid(self):
         return self._device_uid
@@ -135,7 +135,7 @@ class Pydel:
         Raises:
             AuthenticationError on failure to authenticate (typically, the server not returning HTTP 200 or 204).
         """
-        req = requests.post(BASE_API_URL + 'api/v2/users',
+        req = requests.post(BASE_API_URL + 'users',
                             headers={'User-Agent': self._user_agent_string,
                                      'Accept-Encoding': 'gzip',
                                      'Content-Type': 'application/json; charset=UTF-8'},
@@ -202,7 +202,7 @@ class Pydel:
             modified = True
 
         if modified or force:
-            self._authenticated_request(method='PUT', url='api/v2/users/location', json_data={'location': self._location}).text
+            self._authenticated_request(method='PUT', url='users/location', json_data={'location': self._location}).text
             modified = True
 
         return modified
@@ -218,7 +218,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return int(self._authenticated_request(method='GET', url='/api/v2/users/karma').json()['karma'])
+        return int(self._authenticated_request(method='GET', url='/users/karma').json()['karma'])
 
     def get_my_recent_posts(self):
         """
@@ -231,7 +231,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/mine/').json()['posts'], self)
+        return generate_post_list(self._authenticated_request(method='GET', url='posts/mine/').json()['posts'], self)
 
     def get_my_popular_posts(self):
         """
@@ -245,7 +245,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/mine/popular').json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/mine/popular').json()['posts'], self)
 
     def get_my_discussed_posts(self):
         """
@@ -259,7 +259,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/mine/discussed').json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/mine/discussed').json()['posts'], self)
 
     def get_my_replies(self):
         """
@@ -273,7 +273,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/mine/replies').json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/mine/replies').json()['posts'], self)
 
     def get_my_votes(self):
         """
@@ -287,7 +287,7 @@ class Pydel:
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/mine/votes').json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/mine/votes').json()['posts'], self)
 
     def get_recent_posts(self, lat=None, lng=None, limit=30):
         """
@@ -309,7 +309,7 @@ class Pydel:
         if (lat and lng):
             params += '&lat=' + str(lat) + '&lng=' + str(lng)
 
-        return generate_post_list(self._authenticated_request(method='GET', url='api/v2/posts/location' + params).json()['posts'], self)
+        return generate_post_list(self._authenticated_request(method='GET', url='posts/location' + params).json()['posts'], self)
 
     def get_popular_posts(self, lat=None, lng=None, limit=30):
         """
@@ -332,7 +332,7 @@ class Pydel:
             params += '&lat=' + str(lat) + '&lng=' + str(lng)
 
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/location/popular' + params).json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/location/popular' + params).json()['posts'], self)
 
     def get_discussed_posts(self, lat=None, lng=None, limit=30):
         """
@@ -355,7 +355,7 @@ class Pydel:
             params += '&lat=' + str(lat) + '&lng=' + str(lng)
 
         return generate_post_list(
-            self._authenticated_request(method='GET', url='api/v2/posts/location/discussed' + params).json()['posts'], self)
+            self._authenticated_request(method='GET', url='posts/location/discussed' + params).json()['posts'], self)
 
     def get_post(self, post_id):
         """
@@ -371,7 +371,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
-        return Post(self._authenticated_request(method='GET', url='api/v2/posts/{}'.format(post_id)).json(), self)
+        return Post(self._authenticated_request(method='GET', url='posts/{}'.format(post_id)).json(), self)
 
     def new_post(self, color, message):
         """

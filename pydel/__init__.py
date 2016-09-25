@@ -305,6 +305,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
+        self.set_location(lat=lat, lng=lng)
         params = '?limit=' + str(limit)
         if (lat and lng):
             params += '&lat=' + str(lat) + '&lng=' + str(lng)
@@ -327,6 +328,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
+        self.set_location(lat=lat, lng=lng)
         params = '?limit=' + str(limit)
         if (lat and lng):
             params += '&lat=' + str(lat) + '&lng=' + str(lng)
@@ -350,6 +352,7 @@ class Pydel:
             AuthenticationError: An attempt to replace an outdated auth token failed.
             UnexpectedResponseCodeException: The server responded with an unexpected HTTP status code (that is, not 200 or 204)
         """
+        self.set_location(lat=lat, lng=lng)
         params = '?limit=' + str(limit)
         if (lat and lng):
             params += '&lat=' + str(lat) + '&lng=' + str(lng)

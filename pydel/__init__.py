@@ -615,7 +615,7 @@ class Post:
     @property
     def replies(self):
         if self.has_replies:
-            return generate_post_list(self._json_dict['children'], self.pydel_instance)
+            return generate_post_list(self._json_dict['children'], self._pydel_instance)
         else:
             return []
 
